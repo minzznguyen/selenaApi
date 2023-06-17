@@ -10,7 +10,8 @@ import { useState } from "react";
 import axios from "axios";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-
+import { DetailsScreen } from "./LessonsPage";
+import { LessonInfoScreen } from "./LessonInfoPage";
 const Stack = createStackNavigator();
 
 export default LoginPage = () => {
@@ -34,12 +35,11 @@ export default LoginPage = () => {
       const validationStatus = await validateToken(resToken);
       if (validationStatus === 200) {
         finalToken = resToken;
+        console.log(finalToken);
         const temp = await getAllCourses(finalToken);
         setAllCourses(temp);
         // console.log(allCourses[0].sections[0].items);
-
       }
-
     } catch (error) {
       console.log(error);
       throw error;
@@ -102,19 +102,6 @@ export default LoginPage = () => {
     return courses;
   };
 
-  const LessonsList = ({ allCourses }) => {
-    return (
-      <View style={styles.container}>
-        {allCourses.map((course, index) => {
-          <Pressable style={styles.card} key={index}>
-            <Text>{course.title.rendered}</Text>
-            <Text>{course.content.rendered}</Text>
-          </Pressable>;
-        })}
-      </View>
-    );
-  };
-
   function HomeScreen({ navigation }) {
     return (
       <View>
@@ -141,9 +128,13 @@ export default LoginPage = () => {
             <Pressable
               key={course.id}
               style={styles.btn}
-              onPress={() =>
-                navigation.navigate("Details", { courseName: course.name, courseSections: course.sections[0].items })
-              }
+              onPress={() => {
+                navigation.navigate("Details", {
+                  courseName: course.name,
+                  courseSections: course.sections[0].items,
+                  courseId: course.id,
+                });
+              }}
             >
               <Text style={styles.btnText}>{course.name}</Text>
             </Pressable>
@@ -152,23 +143,6 @@ export default LoginPage = () => {
           <Text>No courses found</Text>
         )}
         {/* <LessonsList allCourses={allCourses}></LessonsList> */}
-      </View>
-    );
-  }
-
-  function DetailsScreen({ route, navigation }) {
-    const { courseName, courseSections } = route.params;
-    
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text>{courseName}</Text>
-        {courseSections.map((section) => (
-          <Text key={section.title}>{section.title}</Text>
-        ))}
-        <Button
-        title="Go to Home"
-        onPress={() => navigation.navigate('Home')}
-      />
       </View>
     );
   }
@@ -182,6 +156,7 @@ export default LoginPage = () => {
       >
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Details" component={DetailsScreen} />
+        <Stack.Screen name="LessonInfo" component={LessonInfoScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -196,7 +171,7 @@ const styles = StyleSheet.create({
   btn: {
     width: "100%",
     height: 50,
-    backgroundColor: "blue",
+    backgroundColor: "#eab676",
     alignItems: "center",
     justifyContent: "center",
     margin: 4,
